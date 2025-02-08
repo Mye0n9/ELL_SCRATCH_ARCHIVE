@@ -73,11 +73,11 @@ class FractalBlock(nn.Module):
     
     def forward(self,x):
         paths = []
-        paths.append(self.conv_path(x)) # extend로 넣게 되면 풀어서 넣음
+        paths.append(self.conv_path(x)) # extend로 넣게 되면 [batch_size, ch, w, h]가 아니라 batch_size * [ch, w, h]로 넣음
         if self.fractal_path is not None:
             for path in self.fractal_path:
                 x = path(x)
-            # 마지막에 n_columns 가 original_columns 라면 
+
             paths.extend(x)
         return paths
 
@@ -113,7 +113,6 @@ class FractalNet(nn.Module):
 
         res = self.conv(x)
         for n, block in enumerate(self.fractalBlock):
-            # print(res.shape)
             res = block(res)
             res = transition(res)
             if n == self.n_blocks-1:
