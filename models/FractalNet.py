@@ -42,7 +42,7 @@ class JoinLayer(nn.Module):
 
             elif drop_type == 'global':
                 kept_path_index = max(0, len(paths) - n_path)
-                res [paths[kept_path_index]] if len(paths) >= n_path else [torch.zeros_like(paths[0])]
+                res =  [paths[kept_path_index]] if len(paths) >= n_path else [torch.zeros_like(paths[0])]
             
             else: res = paths
             
