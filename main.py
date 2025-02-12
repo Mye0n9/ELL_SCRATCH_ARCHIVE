@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from models.ResNet import ResNet34
 from models.FractalNet import FractalNet
+from models.DenseNet import DenseNet
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -33,12 +34,16 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size) # test DataLoader
 
 
 # model = ResNet34(num_classes = 10)
-model = FractalNet(n_blocks = 3, n_columns = 4, n_classes = 10)
+# model = FractalNet(n_blocks = 3, n_columns = 4, n_classes = 10)
+model = DenseNet(n_classes=10, n_blocks=3, k=12, l=5, in_channels=16, p_dropout=0.15, compact= 0.5)
+
 torch.cuda.set_device(1)
 model.to(device)
 
 lr = 0.02
-log_dir = './runs/FractalNet'
+# log_dir = './runs/ResNet'
+# log_dir = './runs/FractalNet'
+log_dir = './runs/DenseNet'
 
 writer = SummaryWriter(log_dir)
 
