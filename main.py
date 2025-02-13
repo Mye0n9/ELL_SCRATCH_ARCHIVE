@@ -8,20 +8,21 @@ from torch.utils.tensorboard import SummaryWriter
 from models.ResNet import ResNet34
 from models.FractalNet import FractalNet
 from models.DenseNet import DenseNet
+from models.StochasticDepth import StochasticDepth
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 print(f"Using {device} device")
 
 training_data = datasets.CIFAR10( # download or load CIFAR10 training dataset
-    root="./data",
+    root="/home/work/study/myeongseop/data",
     train=True,
     download=True,
     transform=transforms.ToTensor()
 )
 
 test_data = datasets.CIFAR10( # download or load CIFAR10 training dataset
-    root="./data",
+    root="/home/work/study/myeongseop/data",
     train=False,
     download=True,
     transform=transforms.ToTensor()
@@ -35,15 +36,13 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size) # test DataLoader
 
 # model = ResNet34(num_classes = 10)
 # model = FractalNet(n_blocks = 3, n_columns = 4, n_classes = 10)
-model = DenseNet(n_classes=10, n_blocks=3, k=12, l=5, in_channels=16, p_dropout=0.15, compact= 0.5)
-
+# model = DenseNet(n_classes=10, n_blocks=3, k=12, l=5, in_channels=16, p_dropout=0.15, compact= 0.5)
+model = StochasticDepth(n_classes=10, n_groups=3, survival_type='uniform',p_L=0.5)
 torch.cuda.set_device(1)
 model.to(device)
 
 lr = 0.02
-# log_dir = './runs/ResNet'
-# log_dir = './runs/FractalNet'
-log_dir = './runs/DenseNet'
+log_dir = './runs/StochasticDepth'
 
 writer = SummaryWriter(log_dir)
 
@@ -70,8 +69,8 @@ def train_loop(dataloader, epoch, model, loss_fn, optimizer):
     correct /= size
     print(f"Train Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {loss:>8f} \n")
 
-    writer.add_scalar("Loss/train (without drop path)", loss, epoch)
-    writer.add_scalar("Accuracy/train (without drop path)", correct, epoch)
+    writer.add_scalar("Loss/train", loss, epoch)
+    writer.add_scalar("Accuracy/train ", correct, epoch)
 
 
 def test_loop(dataloader,epoch, model, loss_fn):
@@ -102,7 +101,7 @@ def test_loop(dataloader,epoch, model, loss_fn):
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-epochs = 400
+epochs = 50
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}\n-------------------------------")
     train_loop(train_dataloader, epoch, model, loss_fn, optimizer)
